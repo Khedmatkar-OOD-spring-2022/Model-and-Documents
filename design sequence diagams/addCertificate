@@ -1,0 +1,21 @@
+@startuml logout
+hide footbox
+title اقزودن نوع خدمت متخصص
+actor       "متخصص" as user
+participant ReactApp
+participant ":SpecialistController" as SpecialistController
+participant ":Specialist" as Specialist
+participant ":SpecialistController" as SpecialistController
+participant ":Specialist" as Specialist
+participant ":SpecialistController" as SpecialistController
+participant ":Specialist" as Specialist
+
+note left of user
+    متخصص باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: 
+ReactApp -> RestAPI : http_request
+
+@enduml
