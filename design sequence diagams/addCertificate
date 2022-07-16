@@ -3,12 +3,14 @@ hide footbox
 title اقزودن نوع خدمت متخصص
 actor       "متخصص" as user
 participant ReactApp
+participant ":RestAPI" as RestAPI
 participant ":SpecialistController" as SpecialistController
+participant ":SpecialistCatalogue" as SpecialistCatalogue
 participant ":Specialist" as Specialist
-participant ":SpecialistController" as SpecialistController
-participant ":Specialist" as Specialist
-participant ":SpecialistController" as SpecialistController
-participant ":Specialist" as Specialist
+participant ":SpecialityCertificateController" as SpecialityCertificateController
+participant ":SpecialityCertificate" as SpecialityCertificate
+participant ":SpecialityCertificateCatalogue" as SpecialityCertificateCatalogue
+database Database
 
 note left of user
     متخصص باید در سامانه
@@ -17,5 +19,27 @@ end note
 
 user -> ReactApp: 
 ReactApp -> RestAPI : http_request
+RestAPI -> SpecialistController : addCertificate()
+SpecialistController -> SpecialistCatalogue : findById()
+SpecialistCatalogue -> Database: sql_query
+return: tuple
+SpecialistCatalogue -> Specialist ** :<<create>>
+SpecialistCatalogue --> SpecialistController : specialist
+SpecialistController -> SpecialityCertificateController: addSpecialityCertificate()
+SpecialityCertificateController -> SpecialityCertificate ** :<<create>>
+SpecialityCertificateController -> SpecialityCertificateCatalogue : save()
+SpecialityCertificateCatalogue -> Database: sql_query
+return
+SpecialityCertificateCatalogue --> SpecialityCertificateController
+SpecialityCertificateController --> SpecialistController: speciality_certificate
+SpecialistController -> Specialist : addCertificate()
+return
+SpecialistController -> SpecialistCatalogue: save()
+SpecialistCatalogue ->Database: sql_query
+return
+SpecialistCatalogue --> SpecialistController
+SpecialistController --> RestAPI
+RestAPI --> ReactApp : http_response
+RestAPI --> user: message
 
 @enduml
