@@ -1,0 +1,43 @@
+@startuml addSpeciality
+hide footbox
+title "افزودن نوع خدمت"
+actor       "مدیر" as root
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":SpecialityController" as SpecialityController
+participant ":SpecialityCatalogue" as SpecialityCatalogue
+participant ":Speciality" as Speciality
+database Database
+note left of root
+    مدیر وارد سامانه
+     شده باشد
+end note
+note left of root
+    مدیر دسترسی ویرایش
+    انواع خدمت را داشته باشد
+end note
+    
+root -> ReactApp : SubmitAddSpecialityForm()
+ReactApp -> RestAPI : http_request
+RestAPI -> SpecialityController : removeSepciality()
+
+SpecialityController -> SpecialityCatalogue : findByName()
+SpecialityCatalogue -> Database : sql_query
+return tuple
+alt #Pink speciality found
+    SpecialityCatalogue -> Speciality **: <<create>>
+    SpecialityCatalogue --> SpecialityController: speciality
+    SpecialityController -> SpecialityCatalogue : delete()
+    SpecialityCatalogue -> Database : sql_query
+    return
+    SpecialityCatalogue --> SpecialityController
+    SpecialityController --> RestAPI
+    RestAPI --> ReactApp: http_response
+else #LightBlue speciality not found
+    SpecialityCatalogue --> SpecialityController: NULL
+    SpecialityController --> RestAPI
+    RestAPI --> ReactApp : http_response 
+end
+
+ReactApp --> root: message
+@enduml
