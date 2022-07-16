@@ -1,0 +1,56 @@
+@startuml updateAdminPermission
+hide footbox
+title "تغییر دسترسی مدیر"
+actor       "مدیر فناوری اطلاعات" as root
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":AdminController" as AdminController
+participant ":AdminCatalogue" as AdminCatalogue
+participant ":Admin" as Admin
+participant ":Anouncement" as Anouncement
+database Database
+note right of Anouncement
+    active class
+end note
+note left of root
+    مدیر فناوری اطلاعات باید
+    در سامانه وارد شده باشد
+end note
+
+root -> ReactApp: submitNewPermissions()
+ReactApp -> RestAPI: http_request
+RestAPI -> AdminController : updatePermissions()
+AdminController -> AdminCatalogue: findById()
+AdminCatalogue -> Database: sql_query
+return tuple
+
+alt#Gold #Pink admin not found
+
+    AdminCatalogue --> AdminController: NULL
+    AdminController --> RestAPI
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue admin found
+
+    AdminCatalogue -> Admin **: <<create>>
+    AdminCatalogue --> AdminController: admin
+    AdminController -> Admin: clearPermissions()
+    return
+    AdminController -> Admin: setPermissions()
+    return
+    AdminController -> AdminCatalogue: save()
+    return
+    AdminController --> RestAPI
+    RestAPI --> ReactApp: http_response
+    AdminController -> Anouncement: <<signal>> Notification
+    Anouncement -> Anouncement: NotifyUser()
+    Anouncement --> : permissions
+    note right of Anouncement
+        ارسال ایمیل به‌روزرسانی سطوح
+        جدید دسترسی به مدیر
+    end note
+
+end
+
+ReactApp --> root: message
+@enduml

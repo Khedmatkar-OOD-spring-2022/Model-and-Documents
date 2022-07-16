@@ -1,0 +1,47 @@
+@startuml updateProfile
+hide footbox
+title "ویرایش مشخصات حساب کاربری"
+actor       کاربر as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":UserController" as UserController
+participant ":UserCatalogue" as UserCatalogue
+participant ":User" as User
+participant ":UserProfileDTO" as UserProfileDTO
+database Database
+note left of user
+    کاربر باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: SubmitProfileForm()
+ReactApp -> RestAPI: http_request
+RestAPI -> UserController : updateProfile()
+UserController -> UserCatalogue: findById()
+UserCatalogue -> Database: sql_query
+return tuple
+UserCatalogue -> User **: <<create>>
+UserCatalogue --> UserController: user
+
+UserController -> UserProfileDTO **: <<create>>
+UserController -> User: isValidProfile()
+return
+
+alt#Gold #Pink invalid profile
+
+    UserController --> RestAPI
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue valid profile
+
+    UserController -> User: updateProfile()
+    return
+    UserController -> UserCatalogue: save()
+    UserCatalogue -> Database: sql_query
+    return
+    UserController --> RestAPI
+    RestAPI --> ReactApp: http_response
+end
+
+ReactApp --> user: message
+@enduml

@@ -1,0 +1,65 @@
+@startuml login
+hide footbox
+title "ورود به حساب کاربری"
+actor       کاربر as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":UserController" as UserController
+participant ":UserCatalogue" as UserCatalogue
+participant ":User" as User
+participant ":Context" as Context
+participant ":Anouncement" as Anouncement
+database Database
+note right of Anouncement
+    active class
+end note
+
+user -> ReactApp: submitLoginForm()
+ReactApp -> RestAPI: http_request:(/login)
+RestAPI -> UserController: login()
+deactivate RestAPI
+UserController -> UserCatalogue: findByEmail()
+UserCatalogue -> Database: sql_request
+return tuple
+
+
+alt#Gold #Pink user not found
+
+    UserCatalogue --> UserController: NULL
+    UserController --> RestAPI
+    RestAPI -> ReactApp: http_response
+
+
+else #LightBlue user found
+    
+    UserCatalogue -> User **: <<create>>
+    return user
+    UserController -> User : isPasswordValid()
+    return
+
+    alt#Gold #Pink incorrent password
+
+        UserController --> RestAPI
+        RestAPI --> ReactApp: http_response
+
+    else #LightBlue corrent password
+
+        UserController -> Context **: <<create>>
+        UserController -> UserController: saveContext()
+        deactivate UserController
+        UserController -> Anouncement : <<signal>> Notification
+        UserController --> RestAPI
+        RestAPI --> ReactApp: http_response
+        deactivate UserController
+        Anouncement -> Anouncement: NotifyUser()
+        Anouncement --> : email
+        deactivate Anouncement
+        note right of Anouncement
+            send email to user
+        end note
+    end
+
+end
+
+ReactApp --> user: message
+@enduml

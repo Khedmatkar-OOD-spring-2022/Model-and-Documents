@@ -1,0 +1,72 @@
+@startuml registerAdmin
+hide footbox
+title "ساخت حساب کاربری مدیر"
+actor       "مدیر فناوری اطلاعات" as root
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":AdminController" as AdminController
+participant ":AdminCatalogue" as AdminCatalogue
+participant ":Admin" as Admin
+participant ":UserProfileDTO" as UserProfileDTO
+participant ":UserController" as UserController
+participant ":Permission" as Permission
+participant ":Anouncement" as Anouncement
+database Database
+note right of Anouncement
+    active class
+end note
+note left of root
+    مدیر فناوری اطلاعات باید
+    در سامانه وارد شده باشد
+end note
+
+root -> ReactApp: submitRegisterForm()
+ReactApp -> RestAPI: http_request()
+RestAPI -> AdminController : registerAdmin()
+AdminController -> AdminCatalogue: findByEmail()
+AdminCatalogue -> Database: sql_query
+return tuple
+alt#Gold #Pink email was duplicated
+
+    AdminCatalogue -> Admin **: <<create>>
+    AdminCatalogue --> AdminController: admin
+    AdminController --> RestAPI
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue email was unique
+
+    AdminCatalogue ---> AdminController: NULL
+    AdminController -> UserProfileDTO **: <<create>>
+    AdminController -> UserController : isValidProfile()
+    return
+
+    alt#Gold #Pink invalid profile
+
+        AdminController --> RestAPI
+        RestAPI --> ReactApp: http_response
+
+    else #LightBlue valid profile
+
+        loop 
+            AdminController -> Permission **: <<create>>
+        end
+        AdminController -> Admin **: <<create>>
+        AdminController -> Admin: resetPassword()
+        Admin --> AdminController: password 
+        AdminController -> AdminCatalogue: save()
+        return
+        AdminController -> Anouncement: <<signal>> Notification
+        AdminController --> RestAPI
+        deactivate AdminController
+        Anouncement -> Anouncement: NotifyUser()
+        Anouncement -->: admin password
+        note right of Anouncement
+            ارسال ایمیل پسورد
+            حساب کاربری به مدیر
+        end note
+    end
+
+end
+
+ReactApp --> root: message
+@enduml
