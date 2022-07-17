@@ -1,6 +1,7 @@
 @startuml logout
+' TODO: check speciality does exist
 hide footbox
-title اقزودن نوع خدمت متخصص
+title "اقزودن نوع خدمت متخصص"
 actor       "متخصص" as user
 participant ReactApp
 participant ":RestAPI" as RestAPI

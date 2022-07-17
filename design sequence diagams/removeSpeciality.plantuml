@@ -1,6 +1,6 @@
 @startuml addSpeciality
 hide footbox
-title "افزودن نوع خدمت"
+title "پاک‌کردن نوع خدمت"
 actor       "مدیر" as root
 participant ReactApp
 participant ":RestAPI" as RestAPI
