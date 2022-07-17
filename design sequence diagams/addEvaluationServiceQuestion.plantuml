@@ -1,0 +1,67 @@
+@startuml AddEvaluationServiceQuestion
+hide footbox
+title "افزودن پرسش‌ ارزیابی"
+actor       "مدیر" as admin
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":QuestionController" as QuestionController
+participant ":QuestionCatalogue" as QuestionCatalogue
+participant ":Question" as Question
+participant ":QuestionDTO" as QuestionDTO
+participant ":TextFillContent" as TextFillContent
+participant ":TextFillQuestion" as TextFillQuestion
+participant ":RatingContent" as RatingContent
+participant ":RatingQuestion" as RatingQuestion
+participant ":YesOrNoContent" as YesOrNoContent
+participant ":YesOrNoQuestion" as YesOrNoQuestion
+participant ":SingleSelectionContent" as SingleSelectionContent
+participant ":SingleSelectionQuestion" as SingleSelectionQuestion
+database Database
+note left of admin
+    مدیر باید در سامانه
+    وارد شده باشد
+end note
+note left of admin
+    مدیر باید دسترسی ویرایش
+    پرسش‌های ارزیابی را داشته باشد
+end note
+
+admin -> ReactApp: SubmitAddEvaluationQuestionForm()
+ReactApp -> RestAPI: http_request
+RestAPI -> QuestionController: addQuestion()
+
+alt question type is TEXT_FILL
+
+    QuestionController -> TextFillContent: createQuestionContent()
+    TextFillContent -> TextFillQuestion **: <<create>>
+    TextFillContent --> QuestionController: questionContent
+
+else question type is RATING
+
+    QuestionController -> RatingContent: createQuestionContent()
+    RatingContent -> RatingQuestion **: <<create>>
+    RatingContent --> QuestionController: questionContent
+
+else question type is SINGLE_SELECTION
+
+    QuestionController -> YesOrNoContent: createQuestionContent()
+    YesOrNoContent -> YesOrNoQuestion **: <<create>>
+    YesOrNoContent --> QuestionController: questionContent
+
+else question type is YES_NO
+
+    QuestionController -> SingleSelectionContent: createQuestionContent()
+    SingleSelectionContent -> SingleSelectionQuestion **: <<create>>
+    SingleSelectionContent --> QuestionController: questionContent
+
+end
+
+QuestionController -> Question **: <<create>>
+QuestionController -> QuestionCatalogue: save()
+QuestionCatalogue -> Database: sql_query
+return question
+QuestionController --> QuestionDTO **: <<create>>
+QuestionController --> RestAPI: questionDTO
+RestAPI --> ReactApp: http_response
+ReactApp --> admin: message
+@enduml

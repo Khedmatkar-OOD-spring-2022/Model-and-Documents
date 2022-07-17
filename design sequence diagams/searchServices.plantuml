@@ -1,0 +1,39 @@
+@startuml searchService
+hide footbox
+title "جستجو درخواست‌های خدمت"
+actor       "کاربر" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":ServiceController" as ServiceController
+participant ":ServiceHistoryFinderStrategy" as ServiceHistoryFinderStrategy
+participant ":ServiceCatalogue" as ServiceCatalogue
+participant ":Service" as Service
+participant ":ServiceDTO" as ServiceDTO
+database Database
+note left of user
+    کاربر باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: SubmitSearchServicesForm()
+ReactApp -> RestAPI: http_request
+RestAPI -> ServiceController: searchService()
+ServiceController -> ServiceHistoryFinderStrategy: findAll()
+ServiceHistoryFinderStrategy -> ServiceCatalogue: getAllByUser()
+ServiceCatalogue -> Database: sql_query
+return tuples
+loop
+    ServiceCatalogue -> Service **: <<create>>
+end
+ServiceCatalogue --> ServiceHistoryFinderStrategy: services
+ServiceHistoryFinderStrategy --> ServiceController: services
+loop
+    ServiceController -> ServiceDTO **: <<create>>
+end
+ServiceController --> RestAPI: services
+note right of ServiceController
+    services are list of serviceDTO
+end note
+RestAPI --> ReactApp: http_response
+ReactApp --> user: message
+@enduml

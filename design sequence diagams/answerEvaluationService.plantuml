@@ -1,0 +1,113 @@
+@startuml EvaluationService
+hide footbox
+title "ارزیابی درخواست خدمت"
+actor       "کاربر" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":ServiceController" as ServiceController
+participant ":ServiceCatalogue" as ServiceCatalogue
+participant ":Service" as Service
+participant ":AnswerController" as AnswerController
+participant ":AnswerCatalogue" as AnswerCatalogue
+participant ":Answer" as Answer
+participant ":TextFillContent" as TextFillContent
+participant ":TextFillAnswer" as TextFillAnswer
+participant ":RatingContent" as RatingContent
+participant ":RatingAnswer" as RatingAnswer
+participant ":YesOrNoContent" as YesOrNoContent
+participant ":YesOrNoAnswer" as YesOrNoAnswer
+participant ":SingleSelectionContent" as SingleSelectionContent
+participant ":SingleSelectionAnswer" as SingleSelectionAnswer
+participant ":QuestionnaireItemController" as QuestionnaireItemController
+participant ":QuestionnaireItemCatalogue" as QuestionnaireItemCatalogue
+database Database
+note left of user
+    کاربر باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: SubmitEvaluationServiceForm()
+ReactApp -> RestAPI: http_request
+RestAPI -> ServiceController: answerQuestionnaire()
+ServiceController -> ServiceCatalogue: findById()
+ServiceCatalogue -> Database: sql_query
+return tuple
+alt#Gold #Pink service not found
+
+    ServiceCatalogue --> ServiceController: NULL
+    ServiceController --> RestAPI: exception
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue
+
+    ServiceCatalogue -> Service **: <<create>>
+    ServiceCatalogue --> ServiceController: service
+
+    alt#Gold #Pink service status is not EVALUATION
+
+        ServiceController --> RestAPI: exception
+        RestAPI --> ReactApp: http_response
+    
+    else #Pink user type is Customer && customer does not belong to service
+
+        ServiceController --> RestAPI: exception
+        RestAPI --> ReactApp: http_response
+
+    else #Pink user type is Specialist && specialist does not belong to service
+
+        ServiceController --> RestAPI: exception
+        RestAPI --> ReactApp: http_response
+
+    else #LightBlue
+
+        loop questionnaireItem in  Questionnaire
+            ServiceController -> AnswerController: answer()
+
+            alt answer type is TEXT_FILL
+
+                AnswerController -> TextFillContent: createAnswerContent()
+                TextFillContent -> TextFillAnswer **: <<create>>
+                TextFillContent --> AnswerController: answerContent
+
+            else answer type is RATING
+
+                AnswerController -> RatingContent: createAnswerContent()
+                RatingContent -> RatingAnswer **: <<create>>
+                RatingContent --> AnswerController: answerContent
+
+            else answer type is SINGLE_SELECTION
+
+                AnswerController -> YesOrNoContent: createAnswerContent()
+                YesOrNoContent -> YesOrNoAnswer **: <<create>>
+                YesOrNoContent --> AnswerController: answerContent
+
+            else answer type is YES_NO
+
+                AnswerController -> SingleSelectionContent: createAnswerContent()
+                SingleSelectionContent -> SingleSelectionAnswer **: <<create>>
+                SingleSelectionContent --> AnswerController: answerContent
+
+            end
+
+            AnswerController -> Answer **: <<create>>
+            AnswerController -> AnswerCatalogue: save()
+            AnswerCatalogue -> Database: sql_query
+            return tuple
+            AnswerCatalogue --> AnswerController: answer
+            ServiceController -> QuestionnaireItemController: answer()
+            QuestionnaireItemController -> QuestionnaireItemCatalogue: save()
+            QuestionnaireItemCatalogue -> Database: sql_query
+            return tuple
+            QuestionnaireItemCatalogue --> QuestionnaireItemController
+            QuestionnaireItemController --> ServiceController
+        end
+
+        ServiceController --> RestAPI
+        RestAPI --> ReactApp: http_response
+
+    end
+
+end
+
+ReactApp --> user: message
+@enduml

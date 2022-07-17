@@ -1,0 +1,45 @@
+@startuml RemoveEvaluationServiceQuestion
+hide footbox
+title "پاک‌کردن پرسش‌ ارزیابی"
+actor       "مدیر" as admin
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":QuestionController" as QuestionController
+participant ":QuestionCatalogue" as QuestionCatalogue
+participant ":Question" as Question
+database Database
+note left of admin
+    مدیر باید در سامانه
+    وارد شده باشد
+end note
+note left of admin
+    مدیر باید دسترسی ویرایش
+    پرسش‌های ارزیابی را داشته باشد
+end note
+
+admin -> ReactApp: SubmitRemoveEvaluationQuestionForm()
+ReactApp -> RestAPI: http_request
+RestAPI -> QuestionController: removeQuestion()
+QuestionController -> QuestionCatalogue: getById()
+QuestionCatalogue -> Database: sql_query
+return tuple
+alt#Gold #Pink question not found
+    
+    QuestionCatalogue --> QuestionController: NULL
+    QuestionController --> RestAPI:  exception
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue
+
+    QuestionCatalogue -> Question **: <<create>>
+    QuestionCatalogue --> QuestionController: question
+    QuestionController --> QuestionCatalogue: delete
+    QuestionCatalogue -> Database: sql_query
+    return
+    QuestionCatalogue --> QuestionController
+    QuestionController --> RestAPI
+    RestAPI --> ReactApp: http_response
+
+end
+ReactApp --> admin: message
+@enduml
