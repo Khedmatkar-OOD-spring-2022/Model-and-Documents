@@ -1,6 +1,6 @@
 @startuml logout
 hide footbox
-title اقزودن نوع خدمت متخصص
+title "پاک کردن نوع خدمت متخصص"
 actor       "متخصص" as user
 participant ReactApp
 participant ":RestAPI" as RestAPI
@@ -33,7 +33,7 @@ return
 SpecialityCertificateCatalogue --> SpecialityCertificateController
 SpecialityCertificateController --> SpecialistController
 
-SpecialistController -> Specialist : removeCertificate()
+SpecialistController -> Specialist : Certificate()
 return
 SpecialistController -> SpecialistCatalogue: save()
 SpecialistCatalogue ->Database: sql_query
