@@ -1,0 +1,84 @@
+@startuml rejectService
+hide footbox
+title "لغو درخواست خدمت"
+actor       "کاربر" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":ServiceController" as ServiceController
+participant ":ServiceCatalogue" as ServiceCatalogue
+participant ":Service" as Service
+participant ":ServiceDTO" as ServiceDTO
+participant ":Announcement" as Announcement
+database Database
+note left of user
+    کاربر باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: SubmitRejectServiceRequest()
+ReactApp -> RestAPI: http_request
+RestAPI -> ServiceController: cancelService()
+ServiceController -> ServiceCatalogue: findById()
+ServiceCatalogue -> Database: sql_query
+return tuple
+alt#Gold #Pink service not found
+
+    ServiceCatalogue --> ServiceController: NULL
+    ServiceController --> RestAPI: exception
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue
+
+    ServiceCatalogue -> Service **: <<create>>
+    ServiceCatalogue --> ServiceController: service
+
+    alt#Gold #Pink user type is Customer && [customer does not belong to service || service status is in {EVALUATION, FINISHED, CANCELED}]
+
+        ServiceController --> RestAPI: exception
+        RestAPI --> ReactApp: http_response
+
+    else #Pink user type is Admin && admin doesn't have access SERVICE_RW
+
+        ServiceController --> RestAPI: exception
+        RestAPI --> ReactApp: http_response
+
+    else #LightBlue
+
+        ServiceController -> Service: cancel()
+        return
+        ServiceController -> ServiceCatalogue: save()
+        ServiceCatalogue -> Database: sql_query
+        return
+        ServiceCatalogue --> ServiceController: service
+        alt user type is Admin
+
+            ServiceController -> Announcement: <<send>> Notification
+            Announcement -> Announcement: notifyUser()
+            Announcement -->: notification
+            note right of Announcement
+                ایمیل لغو درخواست خدمت
+                به مشتری ارسال می‌شود
+            end note
+
+        end
+        alt service status is IN_PROGRESS
+
+            ServiceController -> Announcement: <<send>> Notification
+            Announcement -> Announcement: notifyUser()
+            Announcement -->: notification
+            note right of Announcement
+                ایمیل لغو درخواست خدمت
+                به متخصص ارسال می‌شود
+            end note
+
+        end
+        ServiceController -> ServiceDTO **: <<create>>
+        ServiceController --> RestAPI: serviceDTO
+        RestAPI --> ReactApp: http_response
+
+    end
+
+end
+
+ReactApp --> user: message
+@enduml

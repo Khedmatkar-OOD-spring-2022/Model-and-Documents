@@ -1,0 +1,32 @@
+@startuml logout
+
+hide footbox
+title "دیدن دیدگاه ها "
+actor "مدیر" as root
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":FeedbackController" as FeedbackController
+participant ":FeedbackCatalogue" as FeedbackCatalogue
+database Database
+
+note left of root
+    مدیر باید در سامانه
+    وارد شده باشد
+end note
+note left of root
+    مدیر باید دسترسی دیدن 
+    دیدگاه ها را داشته باشد
+end note
+
+root -> ReactApp: showFeedbacks()
+ReactApp -> RestAPI : http_request
+RestAPI -> FeedbackController: showAllFeedbacks()
+FeedbackController -> FeedbackCatalogue : findAll
+FeedbackCatalogue -> Database : sql_query
+return tuple
+FeedbackCatalogue --> FeedbackController : list_of_feedbacks
+FeedbackController --> RestAPI
+RestAPI --> ReactApp : http_response
+ReactApp --> root: message
+
+@enduml

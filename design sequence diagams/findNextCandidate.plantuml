@@ -1,0 +1,19 @@
+@startuml findNextCandidate
+hide footbox
+title "جستجو متخصص کاندید"
+participant ":ServiceController" as ServiceController
+participant ":SpecialistCandidateFinderStrategy" as SpecialistCandidateFinderStrategy
+participant ":SpecialistCatalogue" as SpecialistCatalogue
+participant ":Specialist" as Specialist
+
+ServiceController -> SpecialistCandidateFinderStrategy: findNextCandidateSpecialist()
+SpecialistCandidateFinderStrategy -> SpecialistCatalogue: findAll()
+SpecialistCatalogue -> Database: sql_query
+return tuples
+loop
+    SpecialistCatalogue -> Specialist **: <<create>>
+end
+SpecialistCatalogue --> SpecialistCandidateFinderStrategy: specialists
+SpecialistCandidateFinderStrategy --> ServiceController: specialist
+
+@enduml

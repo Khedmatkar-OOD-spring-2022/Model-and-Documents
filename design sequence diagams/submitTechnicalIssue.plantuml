@@ -1,0 +1,31 @@
+@startuml logout
+' TODO: check speciality does exist
+hide footbox
+title "ایجاد مشکل فنی"
+actor "کاربر" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":TechnicalIssueController" as TechnicalIssueController
+participant ":TechnicalIssueCatalogue" as TechnicalIssueCatalogue
+participant ":TechnicalIssue" as TechnicalIssue
+
+database Database
+
+note left of user
+    کاربر باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: submitTechnicalIssueForm()
+ReactApp -> RestAPI : http_request
+RestAPI -> TechnicalIssueController: submitTechnicalIssue()
+TechnicalIssueController -> TechnicalIssue ** :<<create>>
+TechnicalIssueController -> TechnicalIssueCatalogue : save()
+TechnicalIssueCatalogue -> Database : sql_query
+return
+TechnicalIssueCatalogue --> TechnicalIssueController
+TechnicalIssueController --> RestAPI
+RestAPI --> ReactApp : http_response
+ReactApp --> user: message
+
+@enduml

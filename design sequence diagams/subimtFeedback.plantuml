@@ -1,0 +1,31 @@
+@startuml logout
+
+hide footbox
+title "ثبت دیدگاه"
+actor "کاربر" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":FeedbackController" as FeedbackController
+participant ":FeedbackCatalogue" as FeedbackCatalogue
+participant ":Feedback" as Feedback
+
+database Database
+
+note left of user
+    کاربر باید در سامانه
+    وارد شده باشد
+end note
+
+user -> ReactApp: submitFeedback()
+ReactApp -> RestAPI : http_request
+RestAPI -> FeedbackController: submitFeedback()
+FeedbackController -> Feedback ** :<<create>>
+FeedbackController -> FeedbackCatalogue : save()
+FeedbackCatalogue -> Database : sql_query
+return
+FeedbackCatalogue --> FeedbackController
+FeedbackController --> RestAPI
+RestAPI --> ReactApp : http_response
+ReactApp --> user: message
+
+@enduml

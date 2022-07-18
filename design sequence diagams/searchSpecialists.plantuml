@@ -1,0 +1,26 @@
+@startuml logout
+' TODO: check speciality does exist
+hide footbox
+title "جستجو متخصصان"
+actor       "متخصص" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":SpecialistController" as SpecialistController
+participant ":SpecialistCatalogue" as SpecialistCatalogue
+
+database Database
+
+
+user -> ReactApp: showSpecialists()
+ReactApp -> RestAPI : http_request
+RestAPI -> SpecialistController : search()
+SpecialistController -> SpecialistCatalogue : findByCriteria()
+SpecialistCatalogue -> Database: sql_query
+return: tuple
+
+SpecialistCatalogue --> SpecialistController :list_of_specialists
+SpecialistController --> RestAPI
+RestAPI --> ReactApp : http_response
+ReactApp --> user: message
+
+@enduml

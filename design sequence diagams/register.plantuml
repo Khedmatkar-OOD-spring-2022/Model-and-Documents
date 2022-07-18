@@ -1,4 +1,66 @@
 @startuml register
+hide footbox
 title "ساخت حساب کاربری"
-' todo
+actor       کاربر as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":UserController" as UserController
+participant ":UserCatalogue" as UserCatalogue
+participant ":User" as User
+participant ":Customer" as Customer
+participant ":Specialist" as Specialist
+participant ":Admin" as Admin
+participant ":CustomerCatalogue" as CustomerCatalogue
+participant ":SpecialistCatalogue" as SpecialistCatalogue
+participant ":AdminCatalogue" as AdminCatalogue
+database Database
+
+user -> ReactApp: SubmitRegisterForm()
+ReactApp -> RestAPI: http_request(/register)
+RestAPI -> UserController: register()
+UserController -> UserCatalogue: findByEmail()
+UserCatalogue -> Database: aql_query
+return tuple
+alt#Gold #Pink user found
+
+    UserCatalogue -> User **: <<create>>
+    UserCatalogue --> UserController: user
+    UserController --> RestAPI
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue user not found
+
+    UserCatalogue --> UserController: NULL
+
+    alt user type is Customer
+
+        UserController -> Customer **: <<create>>
+        UserController -> CustomerCatalogue: save()
+        CustomerCatalogue -> Database: sql_query
+        return
+        CustomerCatalogue --> UserController
+    
+    else user type is Specialist
+
+        UserController -> Specialist **: <<create>>
+        UserController -> SpecialistCatalogue: save()
+        SpecialistCatalogue -> Database: sql_query
+        return
+        SpecialistCatalogue --> UserController
+
+    else user type is Admin
+
+        UserController -> Admin **: <<create>>
+        UserController -> AdminCatalogue: save()
+        AdminCatalogue -> Database: sql_query
+        return
+        AdminCatalogue --> UserController
+
+    end
+
+    UserController --> RestAPI
+    RestAPI --> ReactApp: http_response
+end
+
+RestAPI --> user: message
 @enduml

@@ -1,0 +1,59 @@
+@startuml registerService
+hide footbox
+title "ثبت درخواست خدمت"
+actor       "مشتری" as customer
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":ServiceController" as ServiceController
+participant ":ServiceCatalogue" as ServiceCatalogue
+participant ":ServiceDetail" as ServiceDetail
+participant ":Service" as Service
+participant ":SpecialistCandidateFinderStrategy" as SpecialistCandidateFinderStrategy
+participant ":SpecialistCatalogue" as SpecialistCatalogue
+participant ":Anouncement" as Anouncement
+database Database
+note right of Anouncement
+    active class
+end note
+note left of customer
+    مشتری باید در سامانه
+    وارد شده باشد
+end note
+
+customer -> ReactApp: SubmitServiceRegistrationForm()
+ReactApp -> RestAPI: http_request
+RestAPI -> ServiceDetail **: <<create>>
+RestAPI -> ServiceController: isServiceDetailValid()
+ServiceController -> ServiceDetail:  isValid()
+return
+alt#Gold #Pink service detail is invalid
+
+    ServiceController --> RestAPI
+    RestAPI --> ReactApp: http_response
+
+else #LightBlue service detail is valid
+
+    ServiceController -> Service **: <<create>>
+    ServiceController -> ServiceCatalogue: save()
+    ServiceCatalogue -> Database: sql_query
+    return tuple
+    ServiceCatalogue --> ServiceController: service
+    ref over ServiceController, SpecialistCandidateFinderStrategy, SpecialistCatalogue, Database: جستجو متخصص کاندید
+    ServiceController -> Service: setCandidateSpecialist()
+    return
+    ServiceController -> ServiceCatalogue: save()
+    ServiceCatalogue -> Database: sql_query
+    return tuple
+    ServiceCatalogue --> ServiceController: service
+    ServiceController -> Anouncement: <<signal>> Notification
+    Anouncement -> Anouncement: notifyUser()
+    Anouncement -->: service
+    note right of Anouncement
+        ایمیل جزئیات درخواست خدمت ثبت شده
+        به متخصص کاندید ارسال شود
+    end note
+    ServiceController --> RestAPI: serviceDTO
+    RestAPI --> ReactApp: http_response
+end
+ReactApp --> customer: message
+@enduml

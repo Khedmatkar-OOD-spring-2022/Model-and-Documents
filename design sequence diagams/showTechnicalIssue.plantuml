@@ -1,0 +1,35 @@
+@startuml logout
+
+hide footbox
+title "نمایش مشکلات فنی"
+actor "مدیر" as root
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":TechnicalIssueController" as TechnicalIssueController
+participant ":TechnicalIssueCatalogue" as TechnicalIssueCatalogue
+
+
+database Database
+
+note left of root
+    مدیر باید در سامانه
+    وارد شده باشد
+end note
+note left of root
+     مدیر باید دسترسی رسیدگی
+  به مشکلات فنی را داشته باشد.
+   
+end note
+
+root -> ReactApp: showAllTechnicalIssues()
+ReactApp -> RestAPI : http_request
+RestAPI -> TechnicalIssueController: showAllTechnicalIssues()
+TechnicalIssueController -> TechnicalIssueCatalogue : findAll()
+TechnicalIssueCatalogue -> Database : sql_query
+return tuple
+TechnicalIssueCatalogue --> TechnicalIssueController: sorted_list_of_issues
+TechnicalIssueController --> RestAPI
+RestAPI --> ReactApp : http_response
+ReactApp --> root: message
+
+@enduml

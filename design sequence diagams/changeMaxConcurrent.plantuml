@@ -1,0 +1,42 @@
+@startuml logout
+
+hide footbox
+title "تغییر تعداد پذیرش خدمت   "
+actor       "کاربر" as user
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":SpecialistController" as SpecialistController
+participant ":SpecialistCatalogue" as SpecialistCatalogue
+participant ":Specialist" as Specialist
+
+database Database
+
+user -> ReactApp: changeMaxConcurrentServices()
+ReactApp -> RestAPI : http_request
+RestAPI -> SpecialistController : setMaxNumOfCuncurrentDoingServices()
+alt #Pink settings are valid
+    SpecialistController -> SpecialistCatalogue : findAllByScore()
+    SpecialistCatalogue -> Database: sql_query
+    return: tuple
+    SpecialistCatalogue --> SpecialistController :list_of_specialist
+
+    loop num_of_specialists
+        SpecialistController -> Specialist **: <<create>>
+        SpecialistController -> Specialist : changeMaxOfConcurrentServices()
+        Specialist --> SpecialistController
+        SpecialistController -> SpecialistCatalogue : save()
+        SpecialistCatalogue -> Database: sql_query
+        return
+        SpecialistCatalogue --> SpecialistController
+
+    end
+
+    SpecialistController --> RestAPI
+    RestAPI --> ReactApp : http_response
+else #LightBlue settings are invalid
+    SpecialistController --> RestAPI
+    RestAPI --> ReactApp : http_response
+end 
+ReactApp --> user: message
+
+@enduml
