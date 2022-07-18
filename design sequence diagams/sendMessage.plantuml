@@ -1,0 +1,50 @@
+@startuml logout
+hide footbox
+title "فرستادن پیام" 
+actor       "actor" as root
+participant ReactApp
+participant ":RestAPI" as RestAPI
+participant ":ServiceCatalogue" as SpecialityCertificateController
+participant ":ServiceCatalogue" as SpecialityCertificateCatalogue
+participant ":SpecialityCertificate" as SpecialityCertificate
+participant ":ValidationState" as ValidationState
+database Database
+
+note left of user
+کاربر در حساب کاربری خود وارد شده است.
+end note
+note left of user
+     مدیر دسترسی تایید یا رد 
+     انواع خدمت متخصصان را دارا باشد.
+end note
+
+user -> ReactApp: changeCertificateState()
+ReactApp -> RestAPI : http_request
+RestAPI -> SpecialityCertificateController : changeCertificateState()
+SpecialityCertificateController -> SpecialityCertificateCatalogue : getById()
+SpecialityCertificateCatalogue -> Database : sql_query
+return tuple
+
+alt #Pink SpecialityCertificate exists
+    SpecialityCertificateCatalogue -> SpecialityCertificate ** : <<create>>
+    SpecialityCertificateCatalogue --> SpecialityCertificateController: specialityCertificate
+    SpecialityCertificateController -> ValidationState ** :<<create>>
+    SpecialityCertificateController -> SpecialityCertificate: setState()
+    return
+    SpecialityCertificateController -> SpecialityCertificateCatalogue: save()
+    SpecialityCertificateCatalogue -> Database: sql_query
+    return 
+    SpecialityCertificateCatalogue --> SpecialityCertificateController
+    SpecialityCertificateController --> RestAPI
+    RestAPI --> ReactApp : http_response
+
+
+else #LightBlue SpecialityCertificate not found
+    SpecialityCertificateCatalogue --> SpecialityCertificateController : NULL
+    SpecialityCertificateController --> RestAPI
+    RestAPI --> ReactApp : http_response
+end
+
+RestAPI --> user: message
+
+@enduml
