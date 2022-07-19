@@ -1,5 +1,4 @@
 @startuml logout
-
 hide footbox
 title "نمایش مشکلات فنی"
 actor "مدیر" as root
@@ -7,8 +6,8 @@ participant ReactApp
 participant ":RestAPI" as RestAPI
 participant ":TechnicalIssueController" as TechnicalIssueController
 participant ":TechnicalIssueCatalogue" as TechnicalIssueCatalogue
-
-
+participant ":TechnicalIssue" as TechnicalIssue
+participant ":TechnicalIssueDTO" as TechnicalIssueDTO
 database Database
 
 note left of root
@@ -17,8 +16,7 @@ note left of root
 end note
 note left of root
      مدیر باید دسترسی رسیدگی
-  به مشکلات فنی را داشته باشد.
-   
+  به مشکلات فنی را داشته باشد. 
 end note
 
 root -> ReactApp: showAllTechnicalIssues()
@@ -26,9 +24,18 @@ ReactApp -> RestAPI : http_request
 RestAPI -> TechnicalIssueController: showAllTechnicalIssues()
 TechnicalIssueController -> TechnicalIssueCatalogue : findAll()
 TechnicalIssueCatalogue -> Database : sql_query
-return tuple
-TechnicalIssueCatalogue --> TechnicalIssueController: sorted_list_of_issues
-TechnicalIssueController --> RestAPI
+return tuples
+loop
+    TechnicalIssueCatalogue -> TechnicalIssue **: <<create>>
+end
+TechnicalIssueCatalogue --> TechnicalIssueController : technicalIssues
+loop
+    TechnicalIssueController -> TechnicalIssueDTO **: <<create>>
+end
+TechnicalIssueController --> RestAPI: technicalIssues
+note right of TechnicalIssueController
+    technicalIssues are list of technicalIssueDTO
+end note
 RestAPI --> ReactApp : http_response
 ReactApp --> root: message
 

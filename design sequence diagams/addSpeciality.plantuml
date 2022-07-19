@@ -7,6 +7,7 @@ participant ":RestAPI" as RestAPI
 participant ":SpecialityController" as SpecialityController
 participant ":SpecialityCatalogue" as SpecialityCatalogue
 participant ":Speciality" as Speciality
+participant ":SpecialityDTO" as SpecialityDTO
 database Database
 note left of root
     مدیر وارد سامانه
@@ -26,7 +27,7 @@ return tuple
 alt #Pink speciality found
     SpecialityCatalogue -> Speciality **: <<create>>
     SpecialityCatalogue --> SpecialityController: speciality
-    SpecialityController --> RestAPI
+    SpecialityController --> RestAPI: exception
     RestAPI --> ReactApp: http_response
 else #LightBlue speciality not found
     SpecialityCatalogue --> SpecialityController: NULL
@@ -35,7 +36,8 @@ else #LightBlue speciality not found
     SpecialityCatalogue -> Database: sql_query
     return
     SpecialityCatalogue --> SpecialityController
-    SpecialityController --> RestAPI
+    SpecialityController -> SpecialityDTO **: <<create>>
+    SpecialityController --> RestAPI: specialityDTO
     RestAPI --> ReactApp : http_response 
 end
 

@@ -24,7 +24,15 @@ RestAPI -> SpecialityController : removeSepciality()
 SpecialityController -> SpecialityCatalogue : findByName()
 SpecialityCatalogue -> Database : sql_query
 return tuple
-alt #Pink speciality found
+
+alt#Gold #Pink speciality not found
+
+    SpecialityCatalogue --> SpecialityController: NULL
+    SpecialityController --> RestAPI: exception
+    RestAPI --> ReactApp : http_response
+
+else #LightBlue speciality found
+
     SpecialityCatalogue -> Speciality **: <<create>>
     SpecialityCatalogue --> SpecialityController: speciality
     SpecialityController -> SpecialityCatalogue : delete()
@@ -33,10 +41,7 @@ alt #Pink speciality found
     SpecialityCatalogue --> SpecialityController
     SpecialityController --> RestAPI
     RestAPI --> ReactApp: http_response
-else #LightBlue speciality not found
-    SpecialityCatalogue --> SpecialityController: NULL
-    SpecialityController --> RestAPI
-    RestAPI --> ReactApp : http_response 
+
 end
 
 ReactApp --> root: message

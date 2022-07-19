@@ -30,7 +30,7 @@ alt#Gold #Pink email was duplicated
 
     AdminCatalogue -> Admin **: <<create>>
     AdminCatalogue --> AdminController: admin
-    AdminController --> RestAPI
+    AdminController --> RestAPI: exception
     RestAPI --> ReactApp: http_response
 
 else #LightBlue email was unique
@@ -42,7 +42,7 @@ else #LightBlue email was unique
 
     alt#Gold #Pink invalid profile
 
-        AdminController --> RestAPI
+        AdminController --> RestAPI: exception
         RestAPI --> ReactApp: http_response
 
     else #LightBlue valid profile
@@ -56,8 +56,9 @@ else #LightBlue email was unique
         AdminController -> AdminCatalogue: save()
         return
         AdminController -> Anouncement: <<signal>> Notification
-        AdminController --> RestAPI
-        deactivate AdminController
+        AdminController -> UserProfileDTO **: <<create>>
+        AdminController --> RestAPI: userDTO
+        RestAPI --> ReactApp: http_reponse
         Anouncement -> Anouncement: NotifyUser()
         Anouncement -->: admin password
         note right of Anouncement

@@ -9,10 +9,8 @@ participant ":ChatCatalogue" as ChatCatalogue
 participant ":MessageCatalogue" as MessageCatalogue
 participant ":Chat" as Chat
 participant ":Message" as Message
-participant ":Announcement" as Announcement
-
+participant ":MessageDTO" as MessageDTO
 database Database
-
 note left of user
 کاربر در حساب کاربری خود
  وارد شده است
@@ -22,17 +20,29 @@ note left of user
  در حال اجرا داشته باشد
 end note
 
-user -> ReactApp: sendMessage()
+user -> ReactApp: SubmitMessageForm()
 ReactApp -> RestAPI : http_request
 RestAPI -> ChatController : sendMessage()
 ChatController -> ChatCatalogue : findByServiceId()
 ChatCatalogue -> Database : sql_query
 return tuple
 
-alt #Pink Chat exists
+alt #Pink Chat not found
+
+    ChatCatalogue --> ChatController : NULL
+    ChatController --> RestAPI: exception
+    RestAPI --> ReactApp : http_response
+
+else #LightBlue Chat exists
+
     ChatCatalogue -> Chat ** : <<create>>
-    ChatCatalogue --> ChatController: a Chat
-    alt #Pink Chat state is open
+    ChatCatalogue --> ChatController: chat
+    alt #Pink Chat is closed
+
+        ChatController --> RestAPI: exception
+        RestAPI --> ReactApp : http_response
+        
+    else #LightBlue Chat state is open
         ChatController -> Message ** :<<create>>
         ChatController -> MessageCatalogue: save()
         MessageCatalogue -> Database : sql_query
@@ -44,21 +54,12 @@ alt #Pink Chat exists
         ChatCatalogue -> Database: sql_query
         return
         ChatCatalogue --> ChatController
-        ChatController -> Announcement: notifyUser()
-        ChatController --> RestAPI
-        RestAPI --> ReactApp : http_response
-    else #LightBlue Chat is closed
-        ChatController --> RestAPI
+        ChatController -> MessageDTO **: <<create>>
+        ChatController --> RestAPI: messageDTO
         RestAPI --> ReactApp : http_response
     end
 
-
-else #LightBlue Chat not found
-    ChatCatalogue --> ChatController : NULL
-    ChatController --> RestAPI
-    RestAPI --> ReactApp : http_response
 end
 
 ReactApp --> user: message
-
 @enduml

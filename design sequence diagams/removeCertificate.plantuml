@@ -29,8 +29,7 @@ SpecialistController -> Specialist: getAllCertificates():
 return certificates
 alt#gold #pink specialityCertificate doesn't exist in certificates
 
-
-    SpecialistController --> RestAPI
+    SpecialistController --> RestAPI: exception
     RestAPI --> ReactApp : http_response
 
 else #lightblue specialist has specialityCertificate
@@ -45,7 +44,6 @@ else #lightblue specialist has specialityCertificate
     RestAPI --> ReactApp : http_response
 
 end
+
 ReactApp --> user: message
-
-
 @enduml

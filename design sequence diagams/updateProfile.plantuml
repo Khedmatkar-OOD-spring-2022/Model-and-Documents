@@ -29,7 +29,7 @@ return
 
 alt#Gold #Pink invalid profile
 
-    UserController --> RestAPI
+    UserController --> RestAPI: exception
     RestAPI --> ReactApp: http_response
 
 else #LightBlue valid profile
@@ -39,7 +39,8 @@ else #LightBlue valid profile
     UserController -> UserCatalogue: save()
     UserCatalogue -> Database: sql_query
     return
-    UserController --> RestAPI
+    UserController -> UserProfileDTO **: <<create>>
+    UserController --> RestAPI: userDTO
     RestAPI --> ReactApp: http_response
 end
 

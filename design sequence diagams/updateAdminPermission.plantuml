@@ -7,6 +7,7 @@ participant ":RestAPI" as RestAPI
 participant ":AdminController" as AdminController
 participant ":AdminCatalogue" as AdminCatalogue
 participant ":Admin" as Admin
+participant ":AdminProfileDTO" as AdminProfileDTO
 participant ":Anouncement" as Anouncement
 database Database
 note right of Anouncement
@@ -27,7 +28,7 @@ return tuple
 alt#Gold #Pink admin not found
 
     AdminCatalogue --> AdminController: NULL
-    AdminController --> RestAPI
+    AdminController --> RestAPI: exception
     RestAPI --> ReactApp: http_response
 
 else #LightBlue admin found
@@ -39,8 +40,11 @@ else #LightBlue admin found
     AdminController -> Admin: setPermissions()
     return
     AdminController -> AdminCatalogue: save()
-    return
-    AdminController --> RestAPI
+    AdminCatalogue -> Database: sql_query
+    return tuple
+    AdminCatalogue --> AdminController
+    AdminController --> AdminProfileDTO **: <<create>>
+    AdminController --> RestAPI: adminDTO
     RestAPI --> ReactApp: http_response
     AdminController -> Anouncement: <<signal>> Notification
     Anouncement -> Anouncement: NotifyUser()

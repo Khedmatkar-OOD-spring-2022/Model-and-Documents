@@ -7,19 +7,27 @@ participant ReactApp
 participant ":RestAPI" as RestAPI
 participant ":SpecialistController" as SpecialistController
 participant ":SpecialistCatalogue" as SpecialistCatalogue
-
+participant ":Specialist" as Specialist
+participant ":SpecialistProfileDTO" as SpecialistProfileDTO
 database Database
-
 
 user -> ReactApp: showSpecialists()
 ReactApp -> RestAPI : http_request
 RestAPI -> SpecialistController : search()
 SpecialistController -> SpecialistCatalogue : findByCriteria()
 SpecialistCatalogue -> Database: sql_query
-return: tuple
-
-SpecialistCatalogue --> SpecialistController :list_of_specialists
-SpecialistController --> RestAPI
+return tuples
+loop
+    SpecialistCatalogue -> Specialist **: <<create>>
+end
+SpecialistCatalogue --> SpecialistController :specialists
+loop
+    SpecialistController-> SpecialistProfileDTO **: <<create>>
+end
+SpecialistController --> RestAPI: specialits
+note right of SpecialistController
+    specialists are list of specialistDTO
+end note
 RestAPI --> ReactApp : http_response
 ReactApp --> user: message
 

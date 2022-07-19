@@ -8,6 +8,7 @@ participant ":SpecialityCertificateController" as SpecialityCertificateControlle
 participant ":SpecialityCertificateCatalogue" as SpecialityCertificateCatalogue
 participant ":SpecialityCertificate" as SpecialityCertificate
 participant ":ValidationState" as ValidationState
+participant ":SpecialityCertificateDTO" as SpecialityCertificateDTO
 database Database
 
 note left of user
@@ -25,7 +26,14 @@ SpecialityCertificateController -> SpecialityCertificateCatalogue : getById()
 SpecialityCertificateCatalogue -> Database : sql_query
 return tuple
 
-alt #Pink SpecialityCertificate exists
+alt #Pink SpecialityCertificate not found
+
+    SpecialityCertificateCatalogue --> SpecialityCertificateController : NULL
+    SpecialityCertificateController --> RestAPI: exception
+    RestAPI --> ReactApp : http_response
+
+else #LightBlue SpecialityCertificate exists
+
     SpecialityCertificateCatalogue -> SpecialityCertificate ** : <<create>>
     SpecialityCertificateCatalogue --> SpecialityCertificateController: specialityCertificate
     SpecialityCertificateController -> ValidationState ** :<<create>>
@@ -35,13 +43,8 @@ alt #Pink SpecialityCertificate exists
     SpecialityCertificateCatalogue -> Database: sql_query
     return 
     SpecialityCertificateCatalogue --> SpecialityCertificateController
-    SpecialityCertificateController --> RestAPI
-    RestAPI --> ReactApp : http_response
-
-
-else #LightBlue SpecialityCertificate not found
-    SpecialityCertificateCatalogue --> SpecialityCertificateController : NULL
-    SpecialityCertificateController --> RestAPI
+    SpecialityCertificateController -> SpecialityCertificateDTO **: <<create>>
+    SpecialityCertificateController --> RestAPI: certificateDTO
     RestAPI --> ReactApp : http_response
 end
 

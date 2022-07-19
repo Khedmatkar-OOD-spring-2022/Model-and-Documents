@@ -8,7 +8,7 @@ participant ":RestAPI" as RestAPI
 participant ":TechnicalIssueController" as TechnicalIssueController
 participant ":TechnicalIssueCatalogue" as TechnicalIssueCatalogue
 participant ":TechnicalIssue" as TechnicalIssue
-
+participant ":TechnicaIssuelDTO" as TechnicaIssuelDTO
 database Database
 
 note left of user
@@ -22,9 +22,11 @@ RestAPI -> TechnicalIssueController: submitTechnicalIssue()
 TechnicalIssueController -> TechnicalIssue ** :<<create>>
 TechnicalIssueController -> TechnicalIssueCatalogue : save()
 TechnicalIssueCatalogue -> Database : sql_query
-return
-TechnicalIssueCatalogue --> TechnicalIssueController
-TechnicalIssueController --> RestAPI
+return tuple
+TechnicalIssueCatalogue -> TechnicalIssue **: <<create>>
+TechnicalIssueCatalogue --> TechnicalIssueController: technicalIssue
+TechnicalIssueController --> TechnicaIssuelDTO **: <<create>>
+TechnicalIssueController --> RestAPI: technicaIssuelDTO
 RestAPI --> ReactApp : http_response
 ReactApp --> user: message
 

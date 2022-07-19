@@ -1,21 +1,23 @@
 @startuml logout
-
 hide footbox
-title "نمایش مشکل فنی"
+title "پاسخ به مشکل فنی"
 actor "مدیر" as root
 participant ReactApp
 participant ":RestAPI" as RestAPI
 participant ":TechnicalIssueController" as TechnicalIssueController
 participant ":TechnicalIssueCatalogue" as TechnicalIssueCatalogue
 participant ":TechnicalIssue" as TechnicalIssue
-
+participant ":TechnicalIssueDTO" as TechnicalIssueDTO
 database Database
 
 note left of root
     مدیر باید در سامانه
     وارد شده باشد
 end note
-ref over root, ReactApp, RestAPI, TechnicalIssueController, TechnicalIssueCatalogue, Database : نمایش مشکلات فنی
+note left of root
+     مدیر باید دسترسی رسیدگی
+  به مشکلات فنی را داشته باشد. 
+end note
 
 root -> ReactApp: answerTechnicalIssue()
 ReactApp -> RestAPI : http_request
@@ -23,16 +25,27 @@ RestAPI -> TechnicalIssueController: answerTechnicalIssue()
 TechnicalIssueController -> TechnicalIssueCatalogue : findById()
 TechnicalIssueCatalogue -> Database : sql_query
 return tuple
-TechnicalIssueCatalogue -> TechnicalIssue ** :<<create>>
-TechnicalIssueCatalogue --> TechnicalIssueController : technicalIssue
-TechnicalIssueCatalogue -> TechnicalIssue: answer()
-return
-TechnicalIssueController -> TechnicalIssueCatalogue : save()
-TechnicalIssueCatalogue -> Database :sql_query
-return 
-TechnicalIssueCatalogue --> TechnicalIssueController
-TechnicalIssueController --> RestAPI
-RestAPI --> ReactApp : http_response
+alt#Gold #Pink technicalIssue not found
+
+    TechnicalIssueCatalogue --> TechnicalIssueController: NULL
+    TechnicalIssueController --> RestAPI: exception
+    RestAPI --> ReactApp : http_response
+
+else #LightBlue
+
+    TechnicalIssueCatalogue -> TechnicalIssue ** :<<create>>
+    TechnicalIssueCatalogue --> TechnicalIssueController : technicalIssue
+    TechnicalIssueController -> TechnicalIssue: answer()
+    return
+    TechnicalIssueController -> TechnicalIssueCatalogue : save()
+    TechnicalIssueCatalogue -> Database :sql_query
+    return 
+    TechnicalIssueCatalogue --> TechnicalIssueController
+    TechnicalIssueController -> TechnicalIssueDTO **: <<create>>
+    TechnicalIssueController --> RestAPI: technicalIssueDTO
+    RestAPI --> ReactApp : http_response
+
+end
 ReactApp --> root: message
 
 @enduml

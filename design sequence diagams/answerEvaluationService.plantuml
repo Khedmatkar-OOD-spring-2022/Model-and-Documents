@@ -7,6 +7,7 @@ participant ":RestAPI" as RestAPI
 participant ":ServiceController" as ServiceController
 participant ":ServiceCatalogue" as ServiceCatalogue
 participant ":Service" as Service
+participant ":QuestionnaireItemDTO" as QuestionnaireItemDTO
 participant ":AnswerController" as AnswerController
 participant ":AnswerCatalogue" as AnswerCatalogue
 participant ":Answer" as Answer
@@ -100,9 +101,13 @@ else #LightBlue
             return tuple
             QuestionnaireItemCatalogue --> QuestionnaireItemController
             QuestionnaireItemController --> ServiceController
+            ServiceController -> QuestionnaireItemDTO **: <<create>>
         end
 
-        ServiceController --> RestAPI
+        ServiceController --> RestAPI: questionnaire
+        note right of ServiceController
+            questionnaire are list of questionnaireItemDTO
+        end note
         RestAPI --> ReactApp: http_response
 
     end

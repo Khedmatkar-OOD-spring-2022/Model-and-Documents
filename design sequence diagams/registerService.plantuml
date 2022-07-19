@@ -8,6 +8,7 @@ participant ":ServiceController" as ServiceController
 participant ":ServiceCatalogue" as ServiceCatalogue
 participant ":ServiceDetail" as ServiceDetail
 participant ":Service" as Service
+participant ":ServiceDTO" as ServiceDTO
 participant ":SpecialistCandidateFinderStrategy" as SpecialistCandidateFinderStrategy
 participant ":SpecialistCatalogue" as SpecialistCatalogue
 participant ":Anouncement" as Anouncement
@@ -28,7 +29,7 @@ ServiceController -> ServiceDetail:  isValid()
 return
 alt#Gold #Pink service detail is invalid
 
-    ServiceController --> RestAPI
+    ServiceController --> RestAPI: exception
     RestAPI --> ReactApp: http_response
 
 else #LightBlue service detail is valid
@@ -45,6 +46,7 @@ else #LightBlue service detail is valid
     ServiceCatalogue -> Database: sql_query
     return tuple
     ServiceCatalogue --> ServiceController: service
+    ServiceController --> ServiceDTO **: <<create>>
     ServiceController -> Anouncement: <<signal>> Notification
     Anouncement -> Anouncement: notifyUser()
     Anouncement -->: service

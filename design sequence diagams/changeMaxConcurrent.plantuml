@@ -2,41 +2,53 @@
 
 hide footbox
 title "تغییر تعداد پذیرش خدمت   "
-actor       "کاربر" as user
+actor       "مدیر" as admin
 participant ReactApp
 participant ":RestAPI" as RestAPI
 participant ":SpecialistController" as SpecialistController
 participant ":SpecialistCatalogue" as SpecialistCatalogue
 participant ":Specialist" as Specialist
-
 database Database
+note left of admin
+    مدیر وارد سامانه
+     شده باشد
+end note
+note left of admin
+    مدیر دسترسی ویرایش تنظیمات
+    انواع خدمت را داشته باشد
+end note
 
-user -> ReactApp: changeMaxConcurrentServices()
+admin -> ReactApp: SubmitUpdateMaxConcurrentServicesForm()
 ReactApp -> RestAPI : http_request
 RestAPI -> SpecialistController : setMaxNumOfCuncurrentDoingServices()
-alt #Pink settings are valid
+alt#Gold #Pink settings are invalid
+
+    SpecialistController --> RestAPI: exception
+    RestAPI --> ReactApp : http_response
+
+else #LightBlue settings are valid
+
     SpecialistController -> SpecialistCatalogue : findAllByScore()
     SpecialistCatalogue -> Database: sql_query
-    return: tuple
-    SpecialistCatalogue --> SpecialistController :list_of_specialist
+    return tuples
+    loop
+        SpecialistCatalogue -> Specialist **: <<create>>
+    END
+    SpecialistCatalogue --> SpecialistController: specialists
 
-    loop num_of_specialists
-        SpecialistController -> Specialist **: <<create>>
+    loop num of specialists
         SpecialistController -> Specialist : changeMaxOfConcurrentServices()
         Specialist --> SpecialistController
         SpecialistController -> SpecialistCatalogue : save()
         SpecialistCatalogue -> Database: sql_query
         return
         SpecialistCatalogue --> SpecialistController
-
     end
 
     SpecialistController --> RestAPI
     RestAPI --> ReactApp : http_response
-else #LightBlue settings are invalid
-    SpecialistController --> RestAPI
-    RestAPI --> ReactApp : http_response
-end 
-ReactApp --> user: message
 
+end
+
+ReactApp --> admin: message
 @enduml

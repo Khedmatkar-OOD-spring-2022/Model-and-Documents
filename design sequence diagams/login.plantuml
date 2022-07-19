@@ -26,7 +26,7 @@ return tuple
 alt#Gold #Pink user not found
 
     UserCatalogue --> UserController: NULL
-    UserController --> RestAPI
+    UserController --> RestAPI: exception
     RestAPI -> ReactApp: http_response
 
 
@@ -39,7 +39,7 @@ else #LightBlue user found
 
     alt#Gold #Pink incorrent password
 
-        UserController --> RestAPI
+        UserController --> RestAPI: exception
         RestAPI --> ReactApp: http_response
 
     else #LightBlue corrent password
@@ -48,7 +48,7 @@ else #LightBlue user found
         UserController -> UserController: saveContext()
         deactivate UserController
         UserController -> Anouncement : <<signal>> Notification
-        UserController --> RestAPI
+        UserController --> RestAPI: context
         RestAPI --> ReactApp: http_response
         deactivate UserController
         Anouncement -> Anouncement: NotifyUser()

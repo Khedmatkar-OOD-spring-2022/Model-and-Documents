@@ -10,6 +10,7 @@ participant ":User" as User
 participant ":Customer" as Customer
 participant ":Specialist" as Specialist
 participant ":Admin" as Admin
+participant ":UserProfileDTO" as UserProfileDTO
 participant ":CustomerCatalogue" as CustomerCatalogue
 participant ":SpecialistCatalogue" as SpecialistCatalogue
 participant ":AdminCatalogue" as AdminCatalogue
@@ -25,7 +26,7 @@ alt#Gold #Pink user found
 
     UserCatalogue -> User **: <<create>>
     UserCatalogue --> UserController: user
-    UserController --> RestAPI
+    UserController --> RestAPI: exception
     RestAPI --> ReactApp: http_response
 
 else #LightBlue user not found
@@ -58,9 +59,10 @@ else #LightBlue user not found
 
     end
 
-    UserController --> RestAPI
+    UserController -> UserProfileDTO **: <<create>>
+    UserController --> RestAPI: userDTO
     RestAPI --> ReactApp: http_response
 end
 
-RestAPI --> user: message
+ReactApp --> user: message
 @enduml

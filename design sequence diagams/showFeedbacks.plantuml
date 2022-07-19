@@ -7,6 +7,8 @@ participant ReactApp
 participant ":RestAPI" as RestAPI
 participant ":FeedbackController" as FeedbackController
 participant ":FeedbackCatalogue" as FeedbackCatalogue
+participant ":Feedback" as Feedback
+participant ":FeedbackDTO" as FeedbackDTO
 database Database
 
 note left of root
@@ -23,9 +25,18 @@ ReactApp -> RestAPI : http_request
 RestAPI -> FeedbackController: showAllFeedbacks()
 FeedbackController -> FeedbackCatalogue : findAll
 FeedbackCatalogue -> Database : sql_query
-return tuple
-FeedbackCatalogue --> FeedbackController : list_of_feedbacks
-FeedbackController --> RestAPI
+return tuples
+loop
+    FeedbackCatalogue -> Feedback **: <<create>>
+end
+FeedbackCatalogue --> FeedbackController : feedbacks
+loop
+    FeedbackController -> FeedbackDTO **: <<create>>
+end
+FeedbackController --> RestAPI: feedbacks
+note right of FeedbackController
+    feedbacks are list of feedbackDTO
+end note
 RestAPI --> ReactApp : http_response
 ReactApp --> root: message
 
