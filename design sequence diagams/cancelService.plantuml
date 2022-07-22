@@ -1,4 +1,4 @@
-@startuml rejectService
+@startuml cancelService
 hide footbox
 title "لغو درخواست خدمت"
 actor       "کاربر" as user
