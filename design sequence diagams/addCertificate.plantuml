@@ -23,8 +23,8 @@ end note
 
 user -> ReactApp: 
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialistController : addCertificate()
-SpecialistController -> SpecialityCatalogue : findById()
+RestAPI -> SpecialistController : addCertificate(id, certificate)
+SpecialistController -> SpecialityCatalogue : findById(id)
 SpecialityCatalogue -> Database : sql_query
 return tuple
 alt#gold #pink speciality does not exists
@@ -35,16 +35,16 @@ alt#gold #pink speciality does not exists
 else #LightBlue speciality exists
     SpecialityCatalogue -> Speciality ** : <<create>>
     SpecialityCatalogue --> SpecialistController : speciality
-    SpecialistController -> SpecialityCertificateController: addSpecialityCertificate()
+    SpecialistController -> SpecialityCertificateController: addSpecialityCertificate(specialityId, docs)
     SpecialityCertificateController -> SpecialityCertificate ** :<<create>>
-    SpecialityCertificateController -> SpecialityCertificateCatalogue : save()
+    SpecialityCertificateController -> SpecialityCertificateCatalogue : save(certificate)
     SpecialityCertificateCatalogue -> Database: sql_query
     return
     SpecialityCertificateCatalogue --> SpecialityCertificateController
     SpecialityCertificateController --> SpecialistController: speciality_certificate
-    SpecialistController -> Specialist : addCertificate()
+    SpecialistController -> Specialist : addCertificate(specialityCertificate)
     return
-    SpecialistController -> SpecialistCatalogue: save()
+    SpecialistController -> SpecialistCatalogue: save(specialist)
     SpecialistCatalogue ->Database: sql_query
     return
     SpecialistCatalogue --> SpecialistController

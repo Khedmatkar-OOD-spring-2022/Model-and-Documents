@@ -28,7 +28,7 @@ end note
 
 admin -> ReactApp: SubmitAddEvaluationQuestionForm()
 ReactApp -> RestAPI: http_request
-RestAPI -> QuestionController: addQuestion()
+RestAPI -> QuestionController: addQuestion(title, type, content, targetUser)
 
 alt question type is TEXT_FILL
 
@@ -57,7 +57,7 @@ else question type is YES_NO
 end
 
 QuestionController -> Question **: <<create>>
-QuestionController -> QuestionCatalogue: save()
+QuestionController -> QuestionCatalogue: save(question)
 QuestionCatalogue -> Database: sql_query
 return question
 QuestionController --> QuestionDTO **: <<create>>

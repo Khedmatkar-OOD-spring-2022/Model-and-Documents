@@ -17,9 +17,9 @@ end note
 
 user -> ReactApp: SubmitSearchServicesForm()
 ReactApp -> RestAPI: http_request
-RestAPI -> ServiceController: searchService()
+RestAPI -> ServiceController: searchService(serviceId,context)
 ServiceController -> ServiceHistoryFinderStrategy: findAll()
-ServiceHistoryFinderStrategy -> ServiceCatalogue: getAllByUser()
+ServiceHistoryFinderStrategy -> ServiceCatalogue: getAllByUser(userId)
 ServiceCatalogue -> Database: sql_query
 return tuples
 loop

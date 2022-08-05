@@ -24,7 +24,7 @@ end note
 customer -> ReactApp: SubmitServiceRegistrationForm()
 ReactApp -> RestAPI: http_request
 RestAPI -> ServiceDetail **: <<create>>
-RestAPI -> ServiceController: isServiceDetailValid()
+RestAPI -> ServiceController: isServiceDetailValid(detail)
 ServiceController -> ServiceDetail:  isValid()
 return
 alt#Gold #Pink service detail is invalid
@@ -35,20 +35,20 @@ alt#Gold #Pink service detail is invalid
 else #LightBlue service detail is valid
 
     ServiceController -> Service **: <<create>>
-    ServiceController -> ServiceCatalogue: save()
+    ServiceController -> ServiceCatalogue: save(service)
     ServiceCatalogue -> Database: sql_query
     return tuple
     ServiceCatalogue --> ServiceController: service
     ref over ServiceController, SpecialistCandidateFinderStrategy, SpecialistCatalogue, Database: جستجو متخصص کاندید
-    ServiceController -> Service: setCandidateSpecialist()
+    ServiceController -> Service: setCandidateSpecialist(candidate)
     return
-    ServiceController -> ServiceCatalogue: save()
+    ServiceController -> ServiceCatalogue: save(service)
     ServiceCatalogue -> Database: sql_query
     return tuple
     ServiceCatalogue --> ServiceController: service
     ServiceController --> ServiceDTO **: <<create>>
     ServiceController -> Anouncement: <<signal>> Notification
-    Anouncement -> Anouncement: notifyUser()
+    Anouncement -> Anouncement: notifyUser(notif)
     Anouncement -->: service
     note right of Anouncement
         ایمیل جزئیات درخواست خدمت ثبت شده

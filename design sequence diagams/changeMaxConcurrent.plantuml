@@ -20,7 +20,7 @@ end note
 
 admin -> ReactApp: SubmitUpdateMaxConcurrentServicesForm()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialistController : setMaxNumOfCuncurrentDoingServices()
+RestAPI -> SpecialistController : setMaxNumOfCuncurrentDoingServices(specialistId, num)
 alt#Gold #Pink settings are invalid
 
     SpecialistController --> RestAPI: exception
@@ -28,7 +28,7 @@ alt#Gold #Pink settings are invalid
 
 else #LightBlue settings are valid
 
-    SpecialistController -> SpecialistCatalogue : findAllByScore()
+    SpecialistController -> SpecialistCatalogue : findAllByScore(lowerBand, upperBand)
     SpecialistCatalogue -> Database: sql_query
     return tuples
     loop
@@ -37,9 +37,9 @@ else #LightBlue settings are valid
     SpecialistCatalogue --> SpecialistController: specialists
 
     loop num of specialists
-        SpecialistController -> Specialist : changeMaxOfConcurrentServices()
+        SpecialistController -> Specialist : changeMaxOfConcurrentServices(specialistId, num)
         Specialist --> SpecialistController
-        SpecialistController -> SpecialistCatalogue : save()
+        SpecialistController -> SpecialistCatalogue : save(specialist)
         SpecialistCatalogue -> Database: sql_query
         return
         SpecialistCatalogue --> SpecialistController

@@ -13,8 +13,8 @@ database Database
 
 user -> ReactApp: showSpecialities()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialityController : searchSpeciality()
-SpecialityController -> SpecialityCatalogue : findByCriteria()
+RestAPI -> SpecialityController : searchSpeciality(criteria)
+SpecialityController -> SpecialityCatalogue : findByCriteria(criteria)
 SpecialityCatalogue -> Database: sql_query
 return tuples
 loop

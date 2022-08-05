@@ -22,8 +22,8 @@ end note
 
 user -> ReactApp: SubmitMessageForm()
 ReactApp -> RestAPI : http_request
-RestAPI -> ChatController : sendMessage()
-ChatController -> ChatCatalogue : findByServiceId()
+RestAPI -> ChatController : sendMessage(serviceId, message,context)
+ChatController -> ChatCatalogue : findByServiceId(id)
 ChatCatalogue -> Database : sql_query
 return tuple
 
@@ -44,13 +44,13 @@ else #LightBlue Chat exists
         
     else #LightBlue Chat state is open
         ChatController -> Message ** :<<create>>
-        ChatController -> MessageCatalogue: save()
+        ChatController -> MessageCatalogue: save(message)
         MessageCatalogue -> Database : sql_query
         return
         MessageCatalogue --> ChatController
-        ChatController -> Chat: sendMessage()
+        ChatController -> Chat: sendMessage(message)
         return 
-        ChatController -> ChatCatalogue : save()
+        ChatController -> ChatCatalogue : save(chat)
         ChatCatalogue -> Database: sql_query
         return
         ChatCatalogue --> ChatController

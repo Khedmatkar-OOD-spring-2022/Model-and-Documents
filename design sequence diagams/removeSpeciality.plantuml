@@ -19,9 +19,9 @@ end note
     
 root -> ReactApp : SubmitAddSpecialityForm()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialityController : removeSepciality()
+RestAPI -> SpecialityController : removeSepciality(specialistId)
 
-SpecialityController -> SpecialityCatalogue : findByName()
+SpecialityController -> SpecialityCatalogue : findByName(name)
 SpecialityCatalogue -> Database : sql_query
 return tuple
 
@@ -35,7 +35,7 @@ else #LightBlue speciality found
 
     SpecialityCatalogue -> Speciality **: <<create>>
     SpecialityCatalogue --> SpecialityController: speciality
-    SpecialityController -> SpecialityCatalogue : delete()
+    SpecialityController -> SpecialityCatalogue : delete(speciality)
     SpecialityCatalogue -> Database : sql_query
     return
     SpecialityCatalogue --> SpecialityController

@@ -20,7 +20,7 @@ end note
 
 specialist -> ReactApp: SubmitAcceptServiceRequest()
 ReactApp -> RestAPI: http_request
-RestAPI -> ServiceController: acceptService()
+RestAPI -> ServiceController: acceptService(serviceId, isAccepted, context)
 
 alt#Gold #Pink specialist is performing number of active services more than threshold
 
@@ -29,7 +29,7 @@ alt#Gold #Pink specialist is performing number of active services more than thre
 
 else #LightBlue
 
-    ServiceController -> ServiceCatalogue: findById()
+    ServiceController -> ServiceCatalogue: findById(id)
     ServiceCatalogue -> Database: sql_query
     return tuple
     alt#Gold #Pink service not found
@@ -53,10 +53,10 @@ else #LightBlue
             alt specialist rejects service
 
                 ref over ServiceController, SpecialistCandidateFinderStrategy, SpecialistCatalogue, Database: جستجو متخصص کاندید
-                ServiceController -> Service: setCandidateSpecialist()
+                ServiceController -> Service: setCandidateSpecialist(candidate)
                 return
                 ServiceController -> Announcement: <<send>> Notification
-                Announcement -> Announcement: notifyUser()
+                Announcement -> Announcement: notifyUser(notif)
                 Announcement -->: notification
                 note right of Announcement
                     ایمیل جزئیات درخواست خدمت
@@ -65,12 +65,12 @@ else #LightBlue
 
             else specialist accepts service
 
-                ServiceController -> Service: updateToNextState()
+                ServiceController -> Service: updateToNextState(serviceId)
                 Service -> Chat **: <<create>>
                 return
                 Service --> ServiceController
                 ServiceController -> Announcement: <<send>> Notification
-                Announcement -> Announcement: notifyUser()
+                Announcement -> Announcement: notifyUser(notif)
                 Announcement -->: notification
                 note right of Announcement
                     ایمیل تایید درخواست خدمت توسط
@@ -78,7 +78,7 @@ else #LightBlue
                 end note
 
             end
-            ServiceController -> ServiceCatalogue: save()
+            ServiceController -> ServiceCatalogue: save(service)
             ServiceCatalogue -> Database: sql_query
             return service
             ServiceController -> ServiceDTO **: <<create>>

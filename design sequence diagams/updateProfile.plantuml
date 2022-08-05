@@ -16,15 +16,15 @@ end note
 
 user -> ReactApp: SubmitProfileForm()
 ReactApp -> RestAPI: http_request
-RestAPI -> UserController : updateProfile()
-UserController -> UserCatalogue: findById()
+RestAPI -> UserController : updateProfile(new_profile, context)
+UserController -> UserCatalogue: findById(id)
 UserCatalogue -> Database: sql_query
 return tuple
 UserCatalogue -> User **: <<create>>
 UserCatalogue --> UserController: user
 
 UserController -> UserProfileDTO **: <<create>>
-UserController -> User: isValidProfile()
+UserController -> User: isValidProfile(profile)
 return
 
 alt#Gold #Pink invalid profile
@@ -34,9 +34,9 @@ alt#Gold #Pink invalid profile
 
 else #LightBlue valid profile
 
-    UserController -> User: updateProfile()
+    UserController -> User: updateProfile(new_profile, context)
     return
-    UserController -> UserCatalogue: save()
+    UserController -> UserCatalogue: save(user)
     UserCatalogue -> Database: sql_query
     return
     UserController -> UserProfileDTO **: <<create>>

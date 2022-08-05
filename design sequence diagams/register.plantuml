@@ -19,7 +19,7 @@ database Database
 user -> ReactApp: SubmitRegisterForm()
 ReactApp -> RestAPI: http_request(/register)
 RestAPI -> UserController: register()
-UserController -> UserCatalogue: findByEmail()
+UserController -> UserCatalogue: findByEmail(email)
 UserCatalogue -> Database: aql_query
 return tuple
 alt#Gold #Pink user found
@@ -36,7 +36,7 @@ else #LightBlue user not found
     alt user type is Customer
 
         UserController -> Customer **: <<create>>
-        UserController -> CustomerCatalogue: save()
+        UserController -> CustomerCatalogue: save(customer)
         CustomerCatalogue -> Database: sql_query
         return
         CustomerCatalogue --> UserController
@@ -44,7 +44,7 @@ else #LightBlue user not found
     else user type is Specialist
 
         UserController -> Specialist **: <<create>>
-        UserController -> SpecialistCatalogue: save()
+        UserController -> SpecialistCatalogue: save(specialist)
         SpecialistCatalogue -> Database: sql_query
         return
         SpecialistCatalogue --> UserController
@@ -52,7 +52,7 @@ else #LightBlue user not found
     else user type is Admin
 
         UserController -> Admin **: <<create>>
-        UserController -> AdminCatalogue: save()
+        UserController -> AdminCatalogue: save(admin)
         AdminCatalogue -> Database: sql_query
         return
         AdminCatalogue --> UserController

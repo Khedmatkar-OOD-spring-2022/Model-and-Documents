@@ -20,8 +20,8 @@ end note
     
 root -> ReactApp : SubmitAddSpecialityForm()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialityController : addSepciality()
-SpecialityController -> SpecialityCatalogue : findByName()
+RestAPI -> SpecialityController : addSepciality(parentId, name)
+SpecialityController -> SpecialityCatalogue : findByName(name)
 SpecialityCatalogue -> Database : sql_query
 return tuple
 alt #Pink speciality found
@@ -32,7 +32,7 @@ alt #Pink speciality found
 else #LightBlue speciality not found
     SpecialityCatalogue --> SpecialityController: NULL
     SpecialityController -> Speciality **: <<create>>
-    SpecialityController -> SpecialityCatalogue : save()
+    SpecialityController -> SpecialityCatalogue : save(speciality)
     SpecialityCatalogue -> Database: sql_query
     return
     SpecialityCatalogue --> SpecialityController

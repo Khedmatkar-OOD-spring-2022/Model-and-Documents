@@ -18,9 +18,9 @@ end note
 
 user -> ReactApp: submitFeedback()
 ReactApp -> RestAPI : http_request
-RestAPI -> FeedbackController: submitFeedback()
+RestAPI -> FeedbackController: submitFeedback(content, writer)
 FeedbackController -> Feedback ** :<<create>>
-FeedbackController -> FeedbackCatalogue : save()
+FeedbackController -> FeedbackCatalogue : save(feedback)
 FeedbackCatalogue -> Database : sql_query
 return
 FeedbackCatalogue --> FeedbackController

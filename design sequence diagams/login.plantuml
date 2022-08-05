@@ -16,9 +16,9 @@ end note
 
 user -> ReactApp: submitLoginForm()
 ReactApp -> RestAPI: http_request:(/login)
-RestAPI -> UserController: login()
+RestAPI -> UserController: login(email, pass)
 deactivate RestAPI
-UserController -> UserCatalogue: findByEmail()
+UserController -> UserCatalogue: findByEmail(email)
 UserCatalogue -> Database: sql_request
 return tuple
 
@@ -34,7 +34,7 @@ else #LightBlue user found
     
     UserCatalogue -> User **: <<create>>
     return user
-    UserController -> User : isPasswordValid()
+    UserController -> User : isPasswordValid(pass)
     return
 
     alt#Gold #Pink incorrent password
@@ -45,13 +45,13 @@ else #LightBlue user found
     else #LightBlue corrent password
 
         UserController -> Context **: <<create>>
-        UserController -> UserController: saveContext()
+        UserController -> UserController: saveContext(context)
         deactivate UserController
         UserController -> Anouncement : <<signal>> Notification
         UserController --> RestAPI: context
         RestAPI --> ReactApp: http_response
         deactivate UserController
-        Anouncement -> Anouncement: NotifyUser()
+        Anouncement -> Anouncement: NotifyUser(notif)
         Anouncement --> : email
         deactivate Anouncement
         note right of Anouncement

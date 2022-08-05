@@ -21,8 +21,8 @@ end note
 
 user -> ReactApp: changeCertificateState()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialityCertificateController : changeCertificateState()
-SpecialityCertificateController -> SpecialityCertificateCatalogue : getById()
+RestAPI -> SpecialityCertificateController : changeCertificateState(certificate_id, state)
+SpecialityCertificateController -> SpecialityCertificateCatalogue : getById(id)
 SpecialityCertificateCatalogue -> Database : sql_query
 return tuple
 
@@ -37,9 +37,9 @@ else #LightBlue SpecialityCertificate exists
     SpecialityCertificateCatalogue -> SpecialityCertificate ** : <<create>>
     SpecialityCertificateCatalogue --> SpecialityCertificateController: specialityCertificate
     SpecialityCertificateController -> ValidationState ** :<<create>>
-    SpecialityCertificateController -> SpecialityCertificate: setState()
+    SpecialityCertificateController -> SpecialityCertificate: setState(certificate_id, state)
     return
-    SpecialityCertificateController -> SpecialityCertificateCatalogue: save()
+    SpecialityCertificateController -> SpecialityCertificateCatalogue: save(certificate)
     SpecialityCertificateCatalogue -> Database: sql_query
     return 
     SpecialityCertificateCatalogue --> SpecialityCertificateController

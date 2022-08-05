@@ -21,9 +21,9 @@ note left of root
 end note
 
 root -> ReactApp: submitRegisterForm()
-ReactApp -> RestAPI: http_request()
-RestAPI -> AdminController : registerAdmin()
-AdminController -> AdminCatalogue: findByEmail()
+ReactApp -> RestAPI: http_request
+RestAPI -> AdminController : registerAdmin(profile, permissions)
+AdminController -> AdminCatalogue: findByEmail(email)
 AdminCatalogue -> Database: sql_query
 return tuple
 alt#Gold #Pink email was duplicated
@@ -37,7 +37,7 @@ else #LightBlue email was unique
 
     AdminCatalogue ---> AdminController: NULL
     AdminController -> UserProfileDTO **: <<create>>
-    AdminController -> UserController : isValidProfile()
+    AdminController -> UserController : isValidProfile(profile)
     return
 
     alt#Gold #Pink invalid profile
@@ -53,13 +53,13 @@ else #LightBlue email was unique
         AdminController -> Admin **: <<create>>
         AdminController -> Admin: resetPassword()
         Admin --> AdminController: password 
-        AdminController -> AdminCatalogue: save()
+        AdminController -> AdminCatalogue: save(admin)
         return
         AdminController -> Anouncement: <<signal>> Notification
         AdminController -> UserProfileDTO **: <<create>>
         AdminController --> RestAPI: userDTO
         RestAPI --> ReactApp: http_reponse
-        Anouncement -> Anouncement: NotifyUser()
+        Anouncement -> Anouncement: notifyUser(notif)
         Anouncement -->: admin password
         note right of Anouncement
             ارسال ایمیل پسورد

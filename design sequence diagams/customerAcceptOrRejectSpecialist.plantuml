@@ -20,8 +20,8 @@ end note
 
 customer -> ReactApp: SubmitAcceptSpecialistRequest()
 ReactApp -> RestAPI: http_request
-RestAPI -> ServiceController: acceptSpecialist()
-ServiceController -> ServiceCatalogue: findById()
+RestAPI -> ServiceController: acceptSpecialist(specialistId, serviceId, isAccept)
+ServiceController -> ServiceCatalogue: findById(id)
 ServiceCatalogue -> Database: sql_query
 return tuple
 alt#Gold #Pink service not found
@@ -45,12 +45,12 @@ else #LightBlue
         alt customer rejects specialist
 
             ref over ServiceController, SpecialistCandidateFinderStrategy, SpecialistCatalogue, Database: جستجو مشتری کاندید
-            ServiceController -> Service: setCandidateSpecialist()
+            ServiceController -> Service: setCandidateSpecialist(candidate)
             Service -> Chat: setStatus()
             return
             Service --> ServiceController
             ServiceController -> Announcement: <<send>> Notification
-            Announcement -> Announcement: notifyUser()
+            Announcement -> Announcement: notifyUser(notif)
             Announcement -->: notification
             note right of Announcement
                 ایمیل جزئیات درخواست خدمت
@@ -59,10 +59,10 @@ else #LightBlue
 
         else customer accepts specialist
 
-            ServiceController -> Service: updateToNextState()
+            ServiceController -> Service: updateToNextState(serviceId)
             return
             ServiceController -> Announcement: <<send>> Notification
-            Announcement -> Announcement: notifyUser()
+            Announcement -> Announcement: notifyUser(notif)
             Announcement -->: notification
             note right of Announcement
                 ایمیل تایید درخواست خدمت توسط

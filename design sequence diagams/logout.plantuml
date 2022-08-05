@@ -12,8 +12,8 @@ end note
 
 user -> ReactApp: logout()
 ReactApp -> RestAPI : http_request
-RestAPI -> UserController: logout()
-UserController -> UserController ++: removeContext()
+RestAPI -> UserController: logout(context)
+UserController -> UserController ++: removeContext(context)
 UserController -> Context !!: <<delete>>
 UserController --> RestAPI --
 RestAPI --> ReactApp: http_response

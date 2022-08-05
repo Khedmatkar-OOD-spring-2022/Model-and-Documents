@@ -29,8 +29,8 @@ end note
 
 user -> ReactApp: SubmitEvaluationServiceForm()
 ReactApp -> RestAPI: http_request
-RestAPI -> ServiceController: answerQuestionnaire()
-ServiceController -> ServiceCatalogue: findById()
+RestAPI -> ServiceController: answerQuestionnaire(serviceid, context, questionnaire, answer)
+ServiceController -> ServiceCatalogue: findById(id)
 ServiceCatalogue -> Database: sql_query
 return tuple
 alt#Gold #Pink service not found
@@ -62,7 +62,7 @@ else #LightBlue
     else #LightBlue
 
         loop questionnaireItem in  Questionnaire
-            ServiceController -> AnswerController: answer()
+            ServiceController -> AnswerController: answer(contentType, content, context)
 
             alt answer type is TEXT_FILL
 
@@ -91,12 +91,12 @@ else #LightBlue
             end
 
             AnswerController -> Answer **: <<create>>
-            AnswerController -> AnswerCatalogue: save()
+            AnswerController -> AnswerCatalogue: save(answer)
             AnswerCatalogue -> Database: sql_query
             return tuple
             AnswerCatalogue --> AnswerController: answer
-            ServiceController -> QuestionnaireItemController: answer()
-            QuestionnaireItemController -> QuestionnaireItemCatalogue: save()
+            ServiceController -> QuestionnaireItemController: answer(itemId, answer)
+            QuestionnaireItemController -> QuestionnaireItemCatalogue: save(questionaireItem)
             QuestionnaireItemCatalogue -> Database: sql_query
             return tuple
             QuestionnaireItemCatalogue --> QuestionnaireItemController

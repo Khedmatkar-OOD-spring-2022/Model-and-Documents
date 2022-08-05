@@ -17,8 +17,8 @@ end note
 
 user -> ReactApp: SubmitRejectServiceRequest()
 ReactApp -> RestAPI: http_request
-RestAPI -> ServiceController: cancelService()
-ServiceController -> ServiceCatalogue: findById()
+RestAPI -> ServiceController: cancelService(serviceId, context)
+ServiceController -> ServiceCatalogue: findById(id)
 ServiceCatalogue -> Database: sql_query
 return tuple
 alt#Gold #Pink service not found
@@ -46,14 +46,14 @@ else #LightBlue
 
         ServiceController -> Service: cancel()
         return
-        ServiceController -> ServiceCatalogue: save()
+        ServiceController -> ServiceCatalogue: save(service)
         ServiceCatalogue -> Database: sql_query
         return
         ServiceCatalogue --> ServiceController: service
         alt user type is Admin
 
             ServiceController -> Announcement: <<send>> Notification
-            Announcement -> Announcement: notifyUser()
+            Announcement -> Announcement: notifyUser(notification)
             Announcement -->: notification
             note right of Announcement
                 ایمیل لغو درخواست خدمت
@@ -64,7 +64,7 @@ else #LightBlue
         alt service status is IN_PROGRESS
 
             ServiceController -> Announcement: <<send>> Notification
-            Announcement -> Announcement: notifyUser()
+            Announcement -> Announcement: notifyUser(notification)
             Announcement -->: notification
             note right of Announcement
                 ایمیل لغو درخواست خدمت

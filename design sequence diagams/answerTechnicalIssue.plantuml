@@ -21,8 +21,8 @@ end note
 
 root -> ReactApp: answerTechnicalIssue()
 ReactApp -> RestAPI : http_request
-RestAPI -> TechnicalIssueController: answerTechnicalIssue()
-TechnicalIssueController -> TechnicalIssueCatalogue : findById()
+RestAPI -> TechnicalIssueController: answerTechnicalIssue(id, answer, answerer)
+TechnicalIssueController -> TechnicalIssueCatalogue : findById(id)
 TechnicalIssueCatalogue -> Database : sql_query
 return tuple
 alt#Gold #Pink technicalIssue not found
@@ -37,7 +37,7 @@ else #LightBlue
     TechnicalIssueCatalogue --> TechnicalIssueController : technicalIssue
     TechnicalIssueController -> TechnicalIssue: answer()
     return
-    TechnicalIssueController -> TechnicalIssueCatalogue : save()
+    TechnicalIssueController -> TechnicalIssueCatalogue : save(technicalIssue)
     TechnicalIssueCatalogue -> Database :sql_query
     return 
     TechnicalIssueCatalogue --> TechnicalIssueController

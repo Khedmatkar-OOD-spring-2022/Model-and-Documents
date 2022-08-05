@@ -20,8 +20,8 @@ end note
 
 root -> ReactApp: submitNewPermissions()
 ReactApp -> RestAPI: http_request
-RestAPI -> AdminController : updatePermissions()
-AdminController -> AdminCatalogue: findById()
+RestAPI -> AdminController : updatePermissions(adminId, permissions)
+AdminController -> AdminCatalogue: findById(id)
 AdminCatalogue -> Database: sql_query
 return tuple
 
@@ -37,9 +37,9 @@ else #LightBlue admin found
     AdminCatalogue --> AdminController: admin
     AdminController -> Admin: clearPermissions()
     return
-    AdminController -> Admin: setPermissions()
+    AdminController -> Admin: setPermissions(permissions)
     return
-    AdminController -> AdminCatalogue: save()
+    AdminController -> AdminCatalogue: save(admin)
     AdminCatalogue -> Database: sql_query
     return tuple
     AdminCatalogue --> AdminController
@@ -47,7 +47,7 @@ else #LightBlue admin found
     AdminController --> RestAPI: adminDTO
     RestAPI --> ReactApp: http_response
     AdminController -> Anouncement: <<signal>> Notification
-    Anouncement -> Anouncement: NotifyUser()
+    Anouncement -> Anouncement: NotifyUser(notif)
     Anouncement --> : permissions
     note right of Anouncement
         ارسال ایمیل به‌روزرسانی سطوح

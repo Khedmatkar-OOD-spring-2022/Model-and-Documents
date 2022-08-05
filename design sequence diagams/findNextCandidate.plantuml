@@ -6,7 +6,7 @@ participant ":SpecialistCandidateFinderStrategy" as SpecialistCandidateFinderStr
 participant ":SpecialistCatalogue" as SpecialistCatalogue
 participant ":Specialist" as Specialist
 
-ServiceController -> SpecialistCandidateFinderStrategy: findNextCandidateSpecialist()
+ServiceController -> SpecialistCandidateFinderStrategy: findNextCandidateSpecialist(service)
 SpecialistCandidateFinderStrategy -> SpecialistCatalogue: findAll()
 SpecialistCatalogue -> Database: sql_query
 return tuples

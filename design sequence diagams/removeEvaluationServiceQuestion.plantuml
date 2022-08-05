@@ -19,8 +19,8 @@ end note
 
 admin -> ReactApp: SubmitRemoveEvaluationQuestionForm()
 ReactApp -> RestAPI: http_request
-RestAPI -> QuestionController: removeQuestion()
-QuestionController -> QuestionCatalogue: getById()
+RestAPI -> QuestionController: removeQuestion(questinId)
+QuestionController -> QuestionCatalogue: getById(id)
 QuestionCatalogue -> Database: sql_query
 return tuple
 alt#Gold #Pink question not found

@@ -13,8 +13,8 @@ database Database
 
 user -> ReactApp: showSpecialists()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialistController : search()
-SpecialistController -> SpecialistCatalogue : findByCriteria()
+RestAPI -> SpecialistController : search(speciality_type, least_score)
+SpecialistController -> SpecialistCatalogue : findByCriteria(speciality_type, least_score)
 SpecialistCatalogue -> Database: sql_query
 return tuples
 loop

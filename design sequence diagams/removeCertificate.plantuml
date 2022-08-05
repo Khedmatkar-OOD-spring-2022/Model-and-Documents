@@ -19,13 +19,13 @@ end note
 
 user -> ReactApp: SubmitRemoveCertificateForm()
 ReactApp -> RestAPI : http_request
-RestAPI -> SpecialistController : removeCertificate()
-SpecialistController -> SpecialistCatalogue : findById()
+RestAPI -> SpecialistController : removeCertificate(specilityId, certificate)
+SpecialistController -> SpecialistCatalogue : findById(id)
 SpecialistCatalogue -> Database: sql_query
 return: tuple
 SpecialistCatalogue -> Specialist ** :<<create>>
 SpecialistCatalogue --> SpecialistController : specialist
-SpecialistController -> Specialist: getAllCertificates():
+SpecialistController -> Specialist: getAllCertificates()
 return certificates
 alt#gold #pink specialityCertificate doesn't exist in certificates
 
@@ -34,8 +34,8 @@ alt#gold #pink specialityCertificate doesn't exist in certificates
 
 else #lightblue specialist has specialityCertificate
 
-    SpecialistController -> SpecialityCertificateController: removeSpecialityCertificate()
-    SpecialityCertificateController -> SpecialityCertificateCatalogue : delete()
+    SpecialistController -> SpecialityCertificateController: removeSpecialityCertificate(specialityId)
+    SpecialityCertificateController -> SpecialityCertificateCatalogue : delete(certificate)
     SpecialityCertificateCatalogue -> Database: sql_query
     return
     SpecialityCertificateCatalogue --> SpecialityCertificateController
